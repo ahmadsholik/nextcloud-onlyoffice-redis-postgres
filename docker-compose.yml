@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # 1. Database: PostgreSQL 15
+  db:
+    image: postgres:15-alpine
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=pengajarInformatika2026 # Ganti dengan password kuat
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=nextcloud
+    command: ["postgres", "-c", "shared_buffers=512MB", "-c", "max_connections=200"]
+
+  # 2. Cache & File Locking: Redis
+  redis:
+    image: redis:alpine
+    restart: always
+
+  # 3. Main Application: Nextcloud
+  nextcloud:
+    image: nextcloud:latest
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - nextcloud_data:/var/www/html
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=pengajarInformatika2026
+      - REDIS_HOST=redis
+      - NEXTCLOUD_ADMIN_USER=admin
+      - NEXTCLOUD_ADMIN_PASSWORD=adminpass # Ganti segera setelah login
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_UPLOAD_LIMIT=1G
+
+  # 4. Background Jobs: Cron
+  # Menjamin sinkronisasi file dan notifikasi berjalan di background
+  cron:
+    image: nextcloud:latest
+    restart: always
+    volumes:
+      - nextcloud_data:/var/www/html
+    entrypoint: /cron.sh
+    depends_on:
+      - db
+      - redis
+
+  # 5. Document Server: ONLYOFFICE
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      - JWT_SECRET=RahasiaKunciInformatika123
+      - JWT_HEADER=Authorization
+    volumes:
+      - oo_data:/var/www/onlyoffice/Data
+      - oo_log:/var/log/onlyoffice
+
+volumes:
+  db_data:
+  nextcloud_data:
+  oo_data:
+  oo_log:
