@@ -4,10 +4,14 @@
 3. Langkah Instalasi & Integrasi
 Jalankan Container:
 
-Bash
+Bash :
+
 docker-compose up -d
+
 Akses Nextcloud:
-Buka http://localhost:8080 (atau IP server Anda). Karena kita sudah memasukkan NEXTCLOUD_ADMIN_USER di config, Anda bisa langsung login.
+Buka 
+http://localhost:8080 (atau IP server Anda). 
+Karena kita sudah memasukkan NEXTCLOUD_ADMIN_USER di config, Anda bisa langsung login.
 
 Instal Aplikasi ONLYOFFICE di Nextcloud:
 
